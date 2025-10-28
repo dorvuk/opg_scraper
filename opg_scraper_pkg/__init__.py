@@ -1,0 +1,2 @@
+"""Modular OPG scraper package."""
+
