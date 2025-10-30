@@ -57,7 +57,6 @@ def load_counties(args: argparse.Namespace) -> List[str]:
 async def run_for_county(
     county: str,
     session,
-    robots,
     limiter,
     args: argparse.Namespace,
     pages_pbar=None,
@@ -68,11 +67,10 @@ async def run_for_county(
     from .extractor import EmailExtractor
     from .crawl import Crawler
 
-    searcher = Searcher(session, robots, limiter, dry_run=args.dry_run, timeout=args.timeout)
+    searcher = Searcher(session, limiter, dry_run=args.dry_run, timeout=args.timeout)
     extractor = EmailExtractor()
     crawler = Crawler(
         session=session,
-        robots=robots,
         limiter=limiter,
         extractor=extractor,
         depth=args.depth,
@@ -82,7 +80,7 @@ async def run_for_county(
         include_role_emails=args.include_role_emails,
     )
 
-    search_steps_total = len(Searcher.county_queries(county)) * 3
+    search_steps_total = len(Searcher.county_queries(county))
     search_pbar = None if args.no_progress else tqdm(total=search_steps_total, desc=f"Search {county}", leave=False)
     on_search_step = (lambda n: search_pbar.update(n)) if search_pbar else None
 
@@ -125,7 +123,6 @@ async def main_async(args: argparse.Namespace):
     # Local imports to avoid requiring aiohttp for --run-tests
     from tqdm import tqdm
     import aiohttp
-    from .robots import RobotsChecker
     from .rate_limiter import HostRateLimiter
     from .output import CSVWriter
 
@@ -134,7 +131,6 @@ async def main_async(args: argparse.Namespace):
     connector = aiohttp.TCPConnector(limit=10)
     timeout = aiohttp.ClientTimeout(total=args.timeout)
     async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
-        robots = RobotsChecker(session=session, user_agent=USER_AGENT, timeout=args.timeout)
         limiter = HostRateLimiter(delay_seconds=DEFAULT_RATE_LIMIT_SECONDS)
 
         all_records = []
@@ -144,7 +140,7 @@ async def main_async(args: argparse.Namespace):
         pages_pbar = None if args.no_progress else tqdm(total=total_pages, desc="Crawling pages", leave=True)
         try:
             for county in counties:
-                recs, audit = await run_for_county(county, session, robots, limiter, args, pages_pbar)
+                recs, audit = await run_for_county(county, session, limiter, args, pages_pbar)
                 all_records.extend(recs)
                 all_audit_pages.extend(audit)
         finally:

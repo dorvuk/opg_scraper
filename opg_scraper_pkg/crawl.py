@@ -12,7 +12,6 @@ from bs4 import BeautifulSoup
 from .config import USER_AGENT
 from .extractor import EmailExtractor
 from .rate_limiter import HostRateLimiter
-from .robots import RobotsChecker
 from .utils import (
     canonicalize_url,
     contains_opt_out,
@@ -42,7 +41,6 @@ class Crawler:
     def __init__(
         self,
         session: aiohttp.ClientSession,
-        robots: RobotsChecker,
         limiter: HostRateLimiter,
         extractor: EmailExtractor,
         depth: int,
@@ -52,7 +50,6 @@ class Crawler:
         include_role_emails: bool,
     ):
         self.session = session
-        self.robots = robots
         self.limiter = limiter
         self.extractor = extractor
         self.depth = depth
@@ -64,9 +61,6 @@ class Crawler:
     async def _fetch_html(self, url: str) -> str:
         if self.dry_run:
             logging.info("[dry-run] GET %s", url)
-            return ""
-        if not await self.robots.allowed(url):
-            logging.debug("Robots disallow: %s", url)
             return ""
         host = urlparse(url).hostname or ""
         await self.limiter.throttle(host)
@@ -160,4 +154,3 @@ class Crawler:
                         queue.append((nxt, depth + 1, "internal_link"))
 
         return out_records, audit_pages
-

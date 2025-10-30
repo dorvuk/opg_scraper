@@ -8,8 +8,8 @@ VAŽNO – Zakonitost i privatnost
 - Poštujte zahtjeve za odjavom i svaku eksplicitnu napomenu o zabrani marketinških poruka.
 
 Značajke
-- Pretraga weba (Bing, DuckDuckGo; Google fallback samo ako robots.txt dopušta) po upitima npr. „OPG {županija}”, „kontakt OPG {županija}”.
-- Poštivanje robots.txt i per-host ograničenje (1 zahtjev/sek).
+- Pretraga weba preko DuckDuckGo HTML rezultata po upitima npr. „OPG {županija}”, „kontakt OPG {županija}”.
+- Trenutno se robots.txt ne provjerava (na vlastitu odgovornost) i koristi se per-host ograničenje (1 zahtjev/sek).
 - Ekstrakcija email adresa (mailto, regex, JSON-LD), normalizacija i validacija.
 - Filtriranje role-based adresa (info@, contact@) osim ako su jasno OPG-specifične; opcija za uključivanje.
 - Opcija poštivanja „opt-out/no-spam/privatnost” napomena na stranici.
@@ -55,8 +55,8 @@ CSV izlaz – stupci
 `email, name, county, source_url, page_title, discovery_method, date_found`
 
 Napomena o tražilicama
-- Google `/search` često zabranjuje automatizirano dohvaćanje u robots.txt; alat to provjerava i preskače nedopuštene URL-ove.
-- Umjesto API ključeva koriste se javne HTML stranice rezultata uz oprez; ako želite dodati API-je, moguće je dopuniti konfiguraciju.
+- Koristi se samo DuckDuckGo HTML stranica rezultata (bez API ključeva).
+- Robots.txt se ne provjerava; provjerite pravila korištenja i pravne implikacije prije pokretanja.
 
 Testovi
 ```
@@ -84,4 +84,3 @@ Struktura projekta
 
 Licenca
 - Ovaj repozitorij ne uključuje licencu. Ne zaboravite provjeriti i poštovati pravila korištenja web-stranica koje se indeksiraju.
-
